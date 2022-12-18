@@ -1,0 +1,10 @@
+### Secrets ###
+/**/*.json
+/**/*.y*ml
+/**/secrets
+/**/secrets/*
+/**/service*account*
+
+### Temporary Directory ###
+/**/tmp
+/**/tmp/*

@@ -1,0 +1,159 @@
+# ----------------------------------------------------------------------------------------------------------------------------------------------------
+# @description: Ignore EDSA Key Fingerprint Error - Linode Questions.
+# @see {@link https://stackoverflow.com/questions/32297456/how-to-ignore-ansible-ssh-authenticity-checking}
+# ----------------------------------------------------------------------------------------------------------------------------------------------------
+# @description: To [Execute / Test] this file, please run the following command.
+# @exec {@command "ansible --module-name ping --inventory hosts.yaml all;"}
+# ----------------------------------------------------------------------------------------------------------------------------------------------------
+# @description: To [Execute] Ansible Playbook, please run the following command.
+# @exec {@command "ansible-playbook --inventory hosts.yaml index.yml;"}
+# ----------------------------------------------------------------------------------------------------------------------------------------------------
+---
+# ----------------------------------------------------------------------------------------------------------------------------------------------------
+# @see {@link https://docs.ansible.com/ansible/latest/user_guide/intro_inventory.html}
+# ----------------------------------------------------------------------------------------------------------------------------------------------------
+all:
+  hosts:
+    localhost:
+      ansible_host: 127.0.0.1
+      ansible_connection: local
+  vars:
+    PASSWORD: A\/3RYSTR()N5P@SSW()R|)
+
+# ----------------------------------------------------------------------------------------------------------------------------------------------------
+# @description: Force SSH automatically accept new host fingerprint from the command line.
+# @see {@link https://stackoverflow.com/questions/21383806/how-can-i-force-ssh-to-accept-a-new-host-fingerprint-from-the-command-line/}
+# ----------------------------------------------------------------------------------------------------------------------------------------------------
+# @description: Deploy Production Kubernetes Cluster using `kubespray`.
+# @see {@link https://www.linkedin.com/pulse/how-deploy-real-k8s-cluster-using-kubespray-mohamed-daoud/}
+# ----------------------------------------------------------------------------------------------------------------------------------------------------
+admins:
+  hosts:
+    admin-01:
+      ansible_host: admin-01.e8s.io
+      ansible_user: root
+      ansible_ssh_pass: "{{ PASSWORD }}"
+      ansible_ssh_private_key_file: "~/.ssh/admin.e8s.io.open-ssh.ppk"
+    admin-02:
+      ansible_host: admin-02.e8s.io
+      ansible_user: root
+      ansible_ssh_pass: "{{ PASSWORD }}"
+      ansible_ssh_private_key_file: "~/.ssh/admin.e8s.io.open-ssh.ppk"
+    admin-03:
+      ansible_host: admin-03.e8s.io
+      ansible_user: root
+      ansible_ssh_pass: "{{ PASSWORD }}"
+      ansible_ssh_private_key_file: "~/.ssh/admin.e8s.io.open-ssh.ppk"
+
+load_balancers:
+  vars:
+    ansible_ssh_common_args: '-o ProxyCommand="ssh -i ~/.ssh/admin.e8s.io.open-ssh.ppk -o StrictHostKeyChecking=no -W %h:%p -q admin.e8s.io@bastion-ingress.e8s.io"'
+  hosts:
+    load-balancer-01:
+      ansible_host: 172.16.0.101 # load-balancer-02.e8s.io
+      ansible_user: admin.e8s.io
+      ansible_ssh_pass: "{{ PASSWORD }}"
+      ansible_ssh_private_key_file: "~/.ssh/admin.e8s.io.open-ssh.ppk"
+    load-balancer-02:
+      ansible_host: 172.16.0.102 # load-balancer-02.e8s.io
+      ansible_user: admin.e8s.io
+      ansible_ssh_pass: "{{ PASSWORD }}"
+      ansible_ssh_private_key_file: "~/.ssh/admin.e8s.io.open-ssh.ppk"
+    load-balancer-03:
+      ansible_host: 172.16.0.103 # load-balancer-03.e8s.io
+      ansible_user: admin.e8s.io
+      ansible_ssh_pass: "{{ PASSWORD }}"
+      ansible_ssh_private_key_file: "~/.ssh/admin.e8s.io.open-ssh.ppk"
+
+masters:
+  vars:
+    ansible_ssh_common_args: '-o ProxyCommand="ssh -i ~/.ssh/admin.e8s.io.open-ssh.ppk -o StrictHostKeyChecking=no -W %h:%p -q admin.e8s.io@bastion-ingress.e8s.io"'
+  hosts:
+    master-01:
+      ansible_host: 172.16.1.101 # master-01.e8s.io
+      ansible_user: admin.e8s.io
+      ansible_ssh_pass: "{{ PASSWORD }}"
+      ansible_ssh_private_key_file: "~/.ssh/admin.e8s.io.open-ssh.ppk"
+    master-02:
+      ansible_host: 172.16.1.102 # master-02.e8s.io
+      ansible_user: admin.e8s.io
+      ansible_ssh_pass: "{{ PASSWORD }}"
+      ansible_ssh_private_key_file: "~/.ssh/admin.e8s.io.open-ssh.ppk"
+    master-03:
+      ansible_host: 172.16.1.103 # master-03.e8s.io
+      ansible_user: admin.e8s.io
+      ansible_ssh_pass: "{{ PASSWORD }}"
+      ansible_ssh_private_key_file: "~/.ssh/admin.e8s.io.open-ssh.ppk"
+
+# ----------------------------------------------------------------------------------------------------------------------------------------------------
+# @description: [Ansible] - Ansible Playbook with [Bastion] SSH Host under Proxy Machine.
+# @see {@link https://stackoverflow.com/questions/30848170/how-to-use-ansible-under-a-proxy-machine/}
+# @see {@link https://stackoverflow.com/questions/31408017/ansible-with-a-bastion-host-jump-box/}
+# @see {@link https://jeffgeerling.com/blog/2022/using-ansible-playbook-ssh-bastion-jump-host/}
+# @see {@link https://blog.scottlowe.org/2015/12/24/running-ansible-through-ssh-bastion-host/}
+# @see {@link https://selivan.github.io/2018/01/29/ansible-ssh-bastion-host.html}
+# ----------------------------------------------------------------------------------------------------------------------------------------------------
+workers:
+  vars:
+    ansible_ssh_common_args: '-o ProxyCommand="ssh -i ~/.ssh/admin.e8s.io.open-ssh.ppk -o StrictHostKeyChecking=no -W %h:%p -q admin.e8s.io@bastion-ingress.e8s.io"'
+  hosts:
+    worker-01:
+      ansible_host: 172.16.2.101
+      ansible_user: admin.e8s.io
+      ansible_ssh_pass: "{{ PASSWORD }}"
+      ansible_ssh_private_key_file: "~/.ssh/admin.e8s.io.open-ssh.ppk"
+    worker-02:
+      ansible_host: 172.16.2.102
+      ansible_user: admin.e8s.io
+      ansible_ssh_pass: "{{ PASSWORD }}"
+      ansible_ssh_private_key_file: "~/.ssh/admin.e8s.io.open-ssh.ppk"
+    worker-03:
+      ansible_host: 172.16.2.103
+      ansible_user: admin.e8s.io
+      ansible_ssh_pass: "{{ PASSWORD }}"
+      ansible_ssh_private_key_file: "~/.ssh/admin.e8s.io.open-ssh.ppk"
+    worker-04:
+      ansible_host: 172.16.2.104
+      ansible_user: admin.e8s.io
+      ansible_ssh_pass: "{{ PASSWORD }}"
+      ansible_ssh_private_key_file: "~/.ssh/admin.e8s.io.open-ssh.ppk"
+    worker-05:
+      ansible_host: 172.16.3.105
+      ansible_user: admin.e8s.io
+      ansible_ssh_pass: "{{ PASSWORD }}"
+      ansible_ssh_private_key_file: "~/.ssh/admin.e8s.io.open-ssh.ppk"
+    worker-06:
+      ansible_host: 172.16.3.106
+      ansible_user: admin.e8s.io
+      ansible_ssh_pass: "{{ PASSWORD }}"
+      ansible_ssh_private_key_file: "~/.ssh/admin.e8s.io.open-ssh.ppk"
+    worker-07:
+      ansible_host: 172.16.3.107
+      ansible_user: admin.e8s.io
+      ansible_ssh_pass: "{{ PASSWORD }}"
+      ansible_ssh_private_key_file: "~/.ssh/admin.e8s.io.open-ssh.ppk"
+    worker-08:
+      ansible_host: 172.16.3.108
+      ansible_user: admin.e8s.io
+      ansible_ssh_pass: "{{ PASSWORD }}"
+      ansible_ssh_private_key_file: "~/.ssh/admin.e8s.io.open-ssh.ppk"
+    worker-09:
+      ansible_host: 172.16.4.109
+      ansible_user: admin.e8s.io
+      ansible_ssh_pass: "{{ PASSWORD }}"
+      ansible_ssh_private_key_file: "~/.ssh/admin.e8s.io.open-ssh.ppk"
+    worker-10:
+      ansible_host: 172.16.4.110
+      ansible_user: admin.e8s.io
+      ansible_ssh_pass: "{{ PASSWORD }}"
+      ansible_ssh_private_key_file: "~/.ssh/admin.e8s.io.open-ssh.ppk"
+    worker-11:
+      ansible_host: 172.16.4.111
+      ansible_user: admin.e8s.io
+      ansible_ssh_pass: "{{ PASSWORD }}"
+      ansible_ssh_private_key_file: "~/.ssh/admin.e8s.io.open-ssh.ppk"
+    worker-12:
+      ansible_host: 172.16.4.112
+      ansible_user: admin.e8s.io
+      ansible_ssh_pass: "{{ PASSWORD }}"
+      ansible_ssh_private_key_file: "~/.ssh/admin.e8s.io.open-ssh.ppk"

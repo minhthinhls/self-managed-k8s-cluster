@@ -1,0 +1,76 @@
+---
+# ----------------------------------------------------------------------------------------------------------------------------------------------------
+# @description: Bootstrap Kubernetes Cluster for all [Master, Workers] Node.
+# @see {@link https://docs.ansible.com/ansible/latest/user_guide/playbooks_blocks.html}
+# ----------------------------------------------------------------------------------------------------------------------------------------------------
+- name: Bootstrap Kubernetes Cluster for all [Master, Workers] Node.
+  include: "{{ inventory_dir }}/tasks/setup/kubernetes/bootstrap-kubernetes.yml"
+  when:
+    - "ansible_facts['distribution'] == 'CentOS'"
+    - "'master' in inventory_hostname or 'worker' in inventory_hostname"
+  delegate_to: masters, workers
+
+# ----------------------------------------------------------------------------------------------------------------------------------------------------
+# @description: Bootstrap Kubernetes Cluster Dependency for all [Master, Workers] Node.
+# @see {@link https://docs.ansible.com/ansible/latest/user_guide/playbooks_blocks.html}
+# ----------------------------------------------------------------------------------------------------------------------------------------------------
+- name: Install Kubernetes Cluster Dependency for all [Master, Workers] Node.
+  connection: local
+  delegate_to: localhost
+  shell: kubectl apply --filename {{ item }}
+  loop:
+    # ------------------------------------------------------------------------------------------------------------------------------------------------
+    # @description: Installation Documents for CSI-Driver: [[ Longhorn-Storage ]].
+    # @see {@link https://longhorn.io/docs/1.3.0/deploy/install/#installation-requirements}.
+    # @see {@link https://longhorn.io/docs/1.3.0/deploy/install/#installing-nfsv4-client}.
+    # @see {@link https://longhorn.io/docs/1.3.0/deploy/install/#installing-open-iscsi}.
+    # ------------------------------------------------------------------------------------------------------------------------------------------------
+    - https://raw.githubusercontent.com/longhorn/longhorn/v1.3.0/deploy/prerequisite/longhorn-iscsi-installation.yaml
+    - https://raw.githubusercontent.com/longhorn/longhorn/v1.3.0/deploy/prerequisite/longhorn-nfs-installation.yaml
+    - https://raw.githubusercontent.com/longhorn/longhorn/v1.3.0/deploy/longhorn.yaml
+    - "{{ inventory_dir }}/resources/kubernetes/nginx-ingress-controller-v1.1.3.yaml"
+    - "{{ inventory_dir }}/resources/kubernetes/longhorn-storage-class.yaml"
+    - "{{ inventory_dir }}/resources/kubernetes/cert-manager-v1.8.1.yaml"
+  run_once: yes
+  register: micro_tasks
+  until: micro_tasks is succeeded
+  retries: 3 # Each Iteration will [RETRY_MAX=3] times.
+
+# ----------------------------------------------------------------------------------------------------------------------------------------------------
+# @description: Bootstrap Kubernetes Cluster Certificate Issuer (Lets_Encrypt) for all [Master, Workers] Node.
+# @see {@link https://docs.ansible.com/ansible/latest/user_guide/playbooks_blocks.html}
+# ----------------------------------------------------------------------------------------------------------------------------------------------------
+- name: Pause 60 seconds to make sure Certificate Manager Webhook got deployed.
+  pause:
+    seconds: 60
+  when: False # Currently disable this Ansible Tasks.
+
+# ----------------------------------------------------------------------------------------------------------------------------------------------------
+# @description: Bootstrap Kubernetes Cluster Certificate Issuer (Lets_Encrypt) for all [Master, Workers] Node.
+# @see {@link https://docs.ansible.com/ansible/latest/user_guide/playbooks_blocks.html}
+# ----------------------------------------------------------------------------------------------------------------------------------------------------
+- name: Install Kubernetes Cluster Certificate Issuer (Lets_Encrypt) for all [Master, Workers] Node.
+  connection: local
+  delegate_to: localhost
+  shell: kubectl apply --filename {{ item }}
+  loop:
+    - "{{ inventory_dir }}/resources/kubernetes/cert-issuer.yaml"
+  run_once: yes
+  register: micro_tasks
+  until: micro_tasks is succeeded
+  retries: 3 # Each Iteration will [RETRY_MAX=3] times.
+
+# ----------------------------------------------------------------------------------------------------------------------------------------------------
+# @description: Bootstrap Kubernetes Cluster Argo Continuous Deployment for all [Master, Workers] Node.
+# @see {@link https://docs.ansible.com/ansible/latest/user_guide/playbooks_blocks.html}
+# ----------------------------------------------------------------------------------------------------------------------------------------------------
+- name: Install Kubernetes Cluster Argo Continuous Deployment for all [Master, Workers] Node.
+  connection: local
+  delegate_to: localhost
+  shell: kubectl apply --namespace argocd-system --filename {{ item }}
+  loop:
+    - "{{ inventory_dir }}/resources/kubernetes/argocd-stable.yaml"
+  run_once: yes
+  register: micro_tasks
+  until: micro_tasks is succeeded
+  retries: 3 # Each Iteration will [RETRY_MAX=3] times.
