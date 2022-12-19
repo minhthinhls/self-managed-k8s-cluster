@@ -5,6 +5,15 @@
 /**/secrets/*
 /**/service*account*
 
+### Terraform State ###
+/**/.terraform
+/**/.terraform/*
+/**/.terraform.lock.hcl
+/**/terraform.tfstate
+/**/terraform.tfstate.backup
+/**/terraform.tfstate.d
+/**/terraform.tfstate.d/*
+
 ### Temporary Directory ###
 /**/tmp
 /**/tmp/*
